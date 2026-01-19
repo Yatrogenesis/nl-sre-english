@@ -1,8 +1,13 @@
 //! # English Grammar Module
 //!
 //! Handles English grammar validation, POS tagging, and sentence structure.
+//!
+//! ## Optimizations (v0.1.1)
+//!
+//! - **Contraction expansion**: Handles 50+ common English contractions
+//! - **Improved tokenization**: Better handling of punctuation and special cases
 
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 
 /// English grammar analyzer
 #[derive(Debug)]
@@ -20,6 +25,8 @@ pub struct EnglishGrammar {
     conjunctions: HashSet<String>,
     /// Auxiliary verbs
     auxiliaries: HashSet<String>,
+    /// Contraction expansions
+    contractions: HashMap<String, Vec<String>>,
 }
 
 impl Default for EnglishGrammar {
@@ -37,6 +44,7 @@ impl EnglishGrammar {
             pronouns: Self::load_pronouns(),
             conjunctions: Self::load_conjunctions(),
             auxiliaries: Self::load_auxiliaries(),
+            contractions: Self::load_contractions(),
         }
     }
 
@@ -95,6 +103,85 @@ impl EnglishGrammar {
             .iter().map(|s| s.to_string()).collect()
     }
 
+    fn load_contractions() -> HashMap<String, Vec<String>> {
+        let mut map = HashMap::new();
+
+        // Negative contractions
+        map.insert("don't".to_string(), vec!["do".to_string(), "not".to_string()]);
+        map.insert("doesn't".to_string(), vec!["does".to_string(), "not".to_string()]);
+        map.insert("didn't".to_string(), vec!["did".to_string(), "not".to_string()]);
+        map.insert("won't".to_string(), vec!["will".to_string(), "not".to_string()]);
+        map.insert("wouldn't".to_string(), vec!["would".to_string(), "not".to_string()]);
+        map.insert("can't".to_string(), vec!["can".to_string(), "not".to_string()]);
+        map.insert("couldn't".to_string(), vec!["could".to_string(), "not".to_string()]);
+        map.insert("shouldn't".to_string(), vec!["should".to_string(), "not".to_string()]);
+        map.insert("wasn't".to_string(), vec!["was".to_string(), "not".to_string()]);
+        map.insert("weren't".to_string(), vec!["were".to_string(), "not".to_string()]);
+        map.insert("isn't".to_string(), vec!["is".to_string(), "not".to_string()]);
+        map.insert("aren't".to_string(), vec!["are".to_string(), "not".to_string()]);
+        map.insert("haven't".to_string(), vec!["have".to_string(), "not".to_string()]);
+        map.insert("hasn't".to_string(), vec!["has".to_string(), "not".to_string()]);
+        map.insert("hadn't".to_string(), vec!["had".to_string(), "not".to_string()]);
+        map.insert("mustn't".to_string(), vec!["must".to_string(), "not".to_string()]);
+        map.insert("mightn't".to_string(), vec!["might".to_string(), "not".to_string()]);
+        map.insert("needn't".to_string(), vec!["need".to_string(), "not".to_string()]);
+        map.insert("shan't".to_string(), vec!["shall".to_string(), "not".to_string()]);
+
+        // Pronoun + be contractions
+        map.insert("i'm".to_string(), vec!["i".to_string(), "am".to_string()]);
+        map.insert("you're".to_string(), vec!["you".to_string(), "are".to_string()]);
+        map.insert("he's".to_string(), vec!["he".to_string(), "is".to_string()]);
+        map.insert("she's".to_string(), vec!["she".to_string(), "is".to_string()]);
+        map.insert("it's".to_string(), vec!["it".to_string(), "is".to_string()]);
+        map.insert("we're".to_string(), vec!["we".to_string(), "are".to_string()]);
+        map.insert("they're".to_string(), vec!["they".to_string(), "are".to_string()]);
+        map.insert("that's".to_string(), vec!["that".to_string(), "is".to_string()]);
+        map.insert("what's".to_string(), vec!["what".to_string(), "is".to_string()]);
+        map.insert("who's".to_string(), vec!["who".to_string(), "is".to_string()]);
+        map.insert("where's".to_string(), vec!["where".to_string(), "is".to_string()]);
+        map.insert("there's".to_string(), vec!["there".to_string(), "is".to_string()]);
+        map.insert("here's".to_string(), vec!["here".to_string(), "is".to_string()]);
+
+        // Pronoun + have contractions
+        map.insert("i've".to_string(), vec!["i".to_string(), "have".to_string()]);
+        map.insert("you've".to_string(), vec!["you".to_string(), "have".to_string()]);
+        map.insert("we've".to_string(), vec!["we".to_string(), "have".to_string()]);
+        map.insert("they've".to_string(), vec!["they".to_string(), "have".to_string()]);
+        map.insert("could've".to_string(), vec!["could".to_string(), "have".to_string()]);
+        map.insert("would've".to_string(), vec!["would".to_string(), "have".to_string()]);
+        map.insert("should've".to_string(), vec!["should".to_string(), "have".to_string()]);
+        map.insert("might've".to_string(), vec!["might".to_string(), "have".to_string()]);
+        map.insert("must've".to_string(), vec!["must".to_string(), "have".to_string()]);
+
+        // Pronoun + will contractions
+        map.insert("i'll".to_string(), vec!["i".to_string(), "will".to_string()]);
+        map.insert("you'll".to_string(), vec!["you".to_string(), "will".to_string()]);
+        map.insert("he'll".to_string(), vec!["he".to_string(), "will".to_string()]);
+        map.insert("she'll".to_string(), vec!["she".to_string(), "will".to_string()]);
+        map.insert("it'll".to_string(), vec!["it".to_string(), "will".to_string()]);
+        map.insert("we'll".to_string(), vec!["we".to_string(), "will".to_string()]);
+        map.insert("they'll".to_string(), vec!["they".to_string(), "will".to_string()]);
+        map.insert("that'll".to_string(), vec!["that".to_string(), "will".to_string()]);
+
+        // Pronoun + would contractions
+        map.insert("i'd".to_string(), vec!["i".to_string(), "would".to_string()]);
+        map.insert("you'd".to_string(), vec!["you".to_string(), "would".to_string()]);
+        map.insert("he'd".to_string(), vec!["he".to_string(), "would".to_string()]);
+        map.insert("she'd".to_string(), vec!["she".to_string(), "would".to_string()]);
+        map.insert("it'd".to_string(), vec!["it".to_string(), "would".to_string()]);
+        map.insert("we'd".to_string(), vec!["we".to_string(), "would".to_string()]);
+        map.insert("they'd".to_string(), vec!["they".to_string(), "would".to_string()]);
+
+        // Pronoun + had contractions (same form as 'd for would)
+        // Note: Context determines whether 'd = would or had
+
+        // Other common contractions
+        map.insert("let's".to_string(), vec!["let".to_string(), "us".to_string()]);
+        map.insert("ain't".to_string(), vec!["am".to_string(), "not".to_string()]); // informal
+
+        map
+    }
+
     /// Check if word is an article
     pub fn is_article(&self, word: &str) -> bool {
         self.articles.contains(&word.to_lowercase())
@@ -120,13 +207,42 @@ impl EnglishGrammar {
         self.auxiliaries.contains(&word.to_lowercase())
     }
 
-    /// Tokenize a sentence
+    /// Tokenize a sentence with contraction expansion
+    ///
+    /// Expands contractions like "don't" -> ["do", "not"], "I'm" -> ["i", "am"]
     pub fn tokenize(&self, sentence: &str) -> Vec<String> {
+        let mut tokens = Vec::new();
+
+        for word in sentence.split(|c: char| c.is_whitespace() || c == ',' || c == '.' || c == '!' || c == '?') {
+            if word.is_empty() {
+                continue;
+            }
+
+            let lower = word.to_lowercase();
+
+            // Check if it's a known contraction
+            if let Some(expansion) = self.contractions.get(&lower) {
+                tokens.extend(expansion.iter().cloned());
+            } else {
+                tokens.push(lower);
+            }
+        }
+
+        tokens
+    }
+
+    /// Tokenize without expanding contractions (for cases where you need raw tokens)
+    pub fn tokenize_raw(&self, sentence: &str) -> Vec<String> {
         sentence
             .split(|c: char| c.is_whitespace() || c == ',' || c == '.' || c == '!' || c == '?')
             .filter(|s| !s.is_empty())
             .map(|s| s.to_lowercase())
             .collect()
+    }
+
+    /// Expand a single contraction, returns None if not a contraction
+    pub fn expand_contraction(&self, word: &str) -> Option<Vec<String>> {
+        self.contractions.get(&word.to_lowercase()).cloned()
     }
 
     /// Basic POS tagging
@@ -187,5 +303,41 @@ mod tests {
         let tokens = grammar.tokenize("The quick brown fox jumps.");
         assert_eq!(tokens.len(), 5);
         assert_eq!(tokens[0], "the");
+    }
+
+    #[test]
+    fn test_contractions() {
+        let grammar = EnglishGrammar::new();
+
+        // Test negative contractions
+        let tokens = grammar.tokenize("I don't know");
+        assert_eq!(tokens, vec!["i", "do", "not", "know"]);
+
+        // Test pronoun + be contractions
+        let tokens = grammar.tokenize("I'm walking");
+        assert_eq!(tokens, vec!["i", "am", "walking"]);
+
+        // Test pronoun + have contractions
+        let tokens = grammar.tokenize("They've arrived");
+        assert_eq!(tokens, vec!["they", "have", "arrived"]);
+
+        // Test pronoun + will contractions
+        let tokens = grammar.tokenize("We'll see");
+        assert_eq!(tokens, vec!["we", "will", "see"]);
+
+        // Test won't (irregular)
+        let tokens = grammar.tokenize("I won't go");
+        assert_eq!(tokens, vec!["i", "will", "not", "go"]);
+
+        // Test let's
+        let tokens = grammar.tokenize("Let's go");
+        assert_eq!(tokens, vec!["let", "us", "go"]);
+    }
+
+    #[test]
+    fn test_tokenize_raw() {
+        let grammar = EnglishGrammar::new();
+        let tokens = grammar.tokenize_raw("I don't know");
+        assert_eq!(tokens, vec!["i", "don't", "know"]);
     }
 }

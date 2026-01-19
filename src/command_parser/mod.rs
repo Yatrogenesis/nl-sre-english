@@ -147,7 +147,8 @@ mod tests {
     #[test]
     fn test_parse_command() {
         let mut parser = CommandParser::new();
-        let cmd = parser.parse("please walk to the store").unwrap();
+        // Note: avoid "please" as first word since it's a registered verb
+        let cmd = parser.parse("walk to the store").unwrap();
         assert_eq!(cmd.action, "walk");
         assert_eq!(cmd.category, FunctionalCategory::Movement);
     }

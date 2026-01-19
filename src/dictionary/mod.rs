@@ -1,8 +1,17 @@
 //! # English Dictionary Module
 //!
 //! Dictionary management for English words with frequency data.
+//!
+//! ## Optimizations (v0.1.1)
+//!
+//! - **BK-Tree**: Fuzzy search reduced from O(N*M) to O(log N * M) average
+//! - **Length filtering**: Pre-filter candidates by word length
+//! - **Bounded Levenshtein**: Early termination when distance exceeds threshold
+
+mod bktree;
 
 use std::collections::{HashMap, HashSet};
+use bktree::BKTree;
 
 /// Dictionary entry
 #[derive(Debug, Clone)]
@@ -37,6 +46,7 @@ pub enum PartOfSpeech {
 pub struct EnglishDictionary {
     entries: HashMap<String, DictionaryEntry>,
     valid_words: HashSet<String>,
+    bk_tree: BKTree,
     pub stats: DictionaryStats,
 }
 
@@ -61,6 +71,7 @@ impl EnglishDictionary {
         let mut dict = Self {
             entries: HashMap::new(),
             valid_words: HashSet::new(),
+            bk_tree: BKTree::new(),
             stats: DictionaryStats::default(),
         };
         dict.load_common_words();
@@ -74,6 +85,7 @@ impl EnglishDictionary {
             let word = line.trim().to_lowercase();
             if !word.is_empty() && !word.starts_with('#') {
                 self.valid_words.insert(word.clone());
+                self.bk_tree.insert(word.clone());
                 self.entries.insert(word.clone(), DictionaryEntry {
                     word,
                     pos: vec![PartOfSpeech::Unknown],
@@ -101,46 +113,11 @@ impl EnglishDictionary {
     }
 
     /// Find similar words (for spell correction)
+    ///
+    /// Uses BK-Tree for O(log N * M) average complexity instead of O(N * M)
     pub fn find_similar(&self, word: &str, max_distance: usize) -> Vec<(String, usize)> {
         let word_lower = word.to_lowercase();
-        self.valid_words
-            .iter()
-            .filter_map(|w| {
-                let dist = Self::levenshtein(&word_lower, w);
-                if dist <= max_distance && dist > 0 {
-                    Some((w.clone(), dist))
-                } else {
-                    None
-                }
-            })
-            .collect()
-    }
-
-    /// Levenshtein distance
-    fn levenshtein(a: &str, b: &str) -> usize {
-        let a_chars: Vec<char> = a.chars().collect();
-        let b_chars: Vec<char> = b.chars().collect();
-        let m = a_chars.len();
-        let n = b_chars.len();
-
-        if m == 0 { return n; }
-        if n == 0 { return m; }
-
-        let mut dp = vec![vec![0usize; n + 1]; m + 1];
-
-        for i in 0..=m { dp[i][0] = i; }
-        for j in 0..=n { dp[0][j] = j; }
-
-        for i in 1..=m {
-            for j in 1..=n {
-                let cost = if a_chars[i-1] == b_chars[j-1] { 0 } else { 1 };
-                dp[i][j] = (dp[i-1][j] + 1)
-                    .min(dp[i][j-1] + 1)
-                    .min(dp[i-1][j-1] + cost);
-            }
-        }
-
-        dp[m][n]
+        self.bk_tree.find_within(&word_lower, max_distance)
     }
 
     /// Total word count
@@ -168,8 +145,9 @@ mod tests {
 
     #[test]
     fn test_levenshtein() {
-        assert_eq!(EnglishDictionary::levenshtein("kitten", "sitting"), 3);
-        assert_eq!(EnglishDictionary::levenshtein("hello", "hello"), 0);
-        assert_eq!(EnglishDictionary::levenshtein("", "abc"), 3);
+        use super::bktree::levenshtein;
+        assert_eq!(levenshtein("kitten", "sitting"), 3);
+        assert_eq!(levenshtein("hello", "hello"), 0);
+        assert_eq!(levenshtein("", "abc"), 3);
     }
 }
