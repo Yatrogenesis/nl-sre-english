@@ -258,4 +258,5 @@ Merida, Yucatan, Mexico
 ---
 
 *Part of the NL-SRE (Natural Language Semantic Rule Engine) family*
-*See also: [NL-SRE-Semantico](https://github.com/Yatrogenesis/NL-SRE-Semantico) (Spanish)*
+
+*See also: [NL-SRE-Semantico](https://github.com/Yatrogenesis/NL-SRE-Semantico) (Spanish)* [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18293530.svg)](https://doi.org/10.5281/zenodo.18293530)
