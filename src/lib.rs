@@ -34,6 +34,8 @@ pub mod chars;
 pub mod dictionary;
 pub mod verbs;
 pub mod command_parser;
+pub mod domain;
+pub mod quantitative;
 
 // Main re-exports
 pub use disambiguator::SemanticDisambiguator;
@@ -44,6 +46,12 @@ pub use semantic::{SemanticDB, SemanticCategory};
 pub use dictionary::{EnglishDictionary, DictionaryEntry};
 pub use verbs::{VerbDatabase, VerbEntry, VerbGroup, FunctionalCategory};
 pub use command_parser::{CommandParser, ParsedCommand, ParserStats};
+
+// Domain plugin exports (for NL-SRE-Domains integration)
+pub use domain::{DomainPlugin, DomainRegistry, DomainConstraint, ValidatedQuantity, GenericSIDomain};
+
+// Quantitative tokenizer exports
+pub use quantitative::{QuantitativeTokenizer, QuantitativeToken, TokenKind, TokenizerConfig};
 
 /// Processed sentence result
 #[derive(Debug, Clone)]
