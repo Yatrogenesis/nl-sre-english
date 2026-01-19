@@ -1,0 +1,37 @@
+[package]
+name = "nl-sre-english"
+version = "0.1.0"
+edition = "2021"
+authors = ["Francisco Molina-Burgos <fmolina@avermex.com>"]
+description = "Probabilistic Semantic Disambiguation Engine for English - Zero dependencies, Pure Rust"
+license = "MIT"
+repository = "https://github.com/Yatrogenesis/nl-sre-english"
+keywords = ["nlp", "semantic", "disambiguation", "english", "parser"]
+categories = ["text-processing", "parsing"]
+
+[dependencies]
+# Zero dependencies - Pure Rust
+
+[dev-dependencies]
+# None
+
+[lib]
+name = "nl_sre_english"
+path = "src/lib.rs"
+
+[[bin]]
+name = "nl-sre-english"
+path = "src/main.rs"
+
+[[example]]
+name = "verb_groups"
+path = "examples/verb_groups.rs"
+
+[[example]]
+name = "parse_commands"
+path = "examples/parse_commands.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
