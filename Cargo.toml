@@ -1,6 +1,6 @@
 [package]
 name = "nl-sre-english"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Francisco Molina-Burgos <fmolina@avermex.com>"]
 description = "Probabilistic Semantic Disambiguation Engine for English - Zero dependencies, Pure Rust"

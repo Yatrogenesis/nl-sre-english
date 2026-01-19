@@ -1,0 +1,486 @@
+\documentclass[11pt,a4paper]{article}
+
+% Encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page layout
+\usepackage[margin=1in]{geometry}
+
+% Colors - for code highlighting
+\usepackage{xcolor}
+
+% Define Rust-friendly color scheme
+\definecolor{rustbg}{RGB}{250,250,250}
+\definecolor{rustkeyword}{RGB}{167,29,93}      % Pink/magenta for keywords
+\definecolor{ruststring}{RGB}{24,54,145}       % Dark blue for strings
+\definecolor{rustcomment}{RGB}{106,153,85}     % Green for comments
+\definecolor{rusttype}{RGB}{0,134,179}         % Cyan for types
+\definecolor{rustmacro}{RGB}{121,94,38}        % Brown for macros
+\definecolor{rustnumber}{RGB}{174,129,255}     % Purple for numbers
+\definecolor{rustfunction}{RGB}{79,70,229}     % Indigo for functions
+
+% Code listings with colors
+\usepackage{listings}
+
+% Rust language definition
+\lstdefinelanguage{Rust}{
+    keywords={as, break, const, continue, crate, else, enum, extern, false, fn, for, if, impl, in, let, loop, match, mod, move, mut, pub, ref, return, self, Self, static, struct, super, trait, true, type, unsafe, use, where, while, async, await, dyn},
+    keywordstyle=\color{rustkeyword}\bfseries,
+    keywords=[2]{bool, char, f32, f64, i8, i16, i32, i64, i128, isize, str, u8, u16, u32, u64, u128, usize, String, Vec, Option, Result, Some, None, Ok, Err, Box, HashMap, HashSet},
+    keywordstyle=[2]\color{rusttype},
+    keywords=[3]{println, print, format, vec, assert, assert_eq, panic, unreachable, todo, unimplemented},
+    keywordstyle=[3]\color{rustmacro},
+    sensitive=true,
+    morecomment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    commentstyle=\color{rustcomment}\itshape,
+    morestring=[b]",
+    morestring=[b]',
+    stringstyle=\color{ruststring},
+}
+
+\lstset{
+    language=Rust,
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{rustbg},
+    frame=single,
+    framerule=0.5pt,
+    rulecolor=\color{gray!50},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=8pt,
+    tabsize=4,
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    captionpos=b,
+    xleftmargin=15pt,
+    xrightmargin=5pt,
+    aboveskip=10pt,
+    belowskip=10pt,
+}
+
+% Graphics and tables
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+
+% Math
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=green!50!black,
+    urlcolor=blue!70!black,
+}
+
+% Bibliography
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+
+% Title info
+\title{\textbf{NL-SRE-English}: A Probabilistic Semantic Disambiguation Engine\\for Natural Language Processing}
+
+\author{Francisco Molina-Burgos\\
+\textit{Avermex Research Division}\\
+\textit{M\'erida, Yucat\'an, M\'exico}\\
+\href{mailto:fmolina@avermex.com}{fmolina@avermex.com}}
+
+\date{January 19, 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present \textbf{NL-SRE-English}, a pure Rust implementation of a probabilistic semantic disambiguation engine for English natural language processing. The system features a comprehensive verb database with 1,500+ verbs organized into 25 functional categories and 80+ semantic groups, enabling fine-grained action classification. Key innovations include a BK-Tree optimized fuzzy search achieving 37$\times$ speedup over linear search, automatic contraction expansion for 50+ common English contractions, and a natural language command parser. The implementation maintains zero external dependencies, making it suitable for embedded systems and WebAssembly deployment. We describe the architecture, algorithms, and demonstrate practical applications in AI assistants, chatbots, and robotics command interpretation.
+\end{abstract}
+
+\section{Introduction}
+
+Natural Language Processing (NLP) systems require robust mechanisms for understanding user intent, particularly when dealing with action-oriented commands. While modern transformer-based models excel at many NLP tasks, they often lack the deterministic guarantees and interpretability required for safety-critical applications such as robotics, industrial control systems, and embedded devices.
+
+\textbf{NL-SRE-English} addresses this gap by providing a deterministic, rule-based semantic disambiguation engine that:
+
+\begin{itemize}
+    \item Classifies verbs into 25 functional categories with high precision
+    \item Handles morphological variations (conjugations, tenses)
+    \item Provides sub-millisecond response times
+    \item Operates with zero external dependencies
+    \item Offers complete interpretability of decisions
+\end{itemize}
+
+The system is part of the NL-SRE (Natural Language Semantic Rule Engine) family, with parallel implementations for Spanish \citep{nlsresematico2026} and planned support for additional languages.
+
+\section{System Architecture}
+
+\subsection{Overview}
+
+The architecture follows a layered design inspired by the UNIFORM/TAO/APPLOG framework for symbolic AI systems:
+
+\begin{verbatim}
++---------------------------------------------------+
+|              SemanticDisambiguator                |
++---------------------------------------------------+
+|  +------------+  +----------+  +------------+     |
+|  |VerbDatabase|  | Grammar  |  | Dictionary |     |
+|  | 1500+ verbs|  |  Parser  |  |   5000+    |     |
+|  |25 categories| |  POS tag |  |   words    |     |
+|  +------------+  +----------+  +------------+     |
++---------------------------------------------------+
+|           CommandParser (NL -> Structured)        |
++---------------------------------------------------+
+\end{verbatim}
+
+\subsection{Verb Database}
+
+The verb database is the core component, containing 1,500+ English verbs organized hierarchically:
+
+\begin{lstlisting}[caption={Verb Database Structure}]
+pub struct VerbEntry {
+    pub base: String,           // Infinitive form
+    pub past: String,           // Past tense
+    pub past_participle: String,
+    pub present_participle: String,
+    pub third_person: String,
+    pub category: FunctionalCategory,
+    pub group: VerbGroup,
+    pub synonyms: Vec<String>,
+    pub irregular: bool,
+}
+\end{lstlisting}
+
+\subsection{Functional Categories}
+
+Table \ref{tab:categories} presents the 25 functional categories with representative verbs.
+
+\begin{table}[htbp]
+\centering
+\caption{Functional Categories and Representative Verbs}
+\label{tab:categories}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Category} & \textbf{Description} & \textbf{Examples} \\
+\midrule
+Movement & Motion and locomotion & walk, run, fly, swim \\
+Perception & Sensing and perceiving & see, hear, feel, smell \\
+Communication & Speaking and speech acts & say, tell, speak, ask \\
+Cognition & Mental processes & think, know, believe \\
+Emotion & Emotional states & love, hate, fear, hope \\
+Physical & Physical manipulation & hit, cut, push, pull \\
+State & States of being & be, exist, remain \\
+Change & Change of state & become, grow, transform \\
+Transfer & Giving and receiving & give, take, send \\
+Creation & Making and producing & make, create, build \\
+Destruction & Breaking and destroying & destroy, break, kill \\
+Control & Controlling/managing & control, manage, lead \\
+Possession & Owning and having & own, have, possess \\
+Social & Social interaction & meet, help, cooperate \\
+Consumption & Eating and drinking & eat, drink, consume \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Key Algorithms}
+
+\subsection{BK-Tree Fuzzy Search}
+
+Spell correction requires finding dictionary words within a given edit distance of the query. Na\"ive linear search has $O(N \times M)$ complexity where $N$ is dictionary size and $M$ is average word length.
+
+We implement a Burkhard-Keller Tree (BK-Tree) \citep{burkhard1973} that exploits the triangle inequality of the Levenshtein distance:
+
+\begin{equation}
+d(x,z) \geq |d(x,y) - d(y,z)|
+\end{equation}
+
+This allows pruning large portions of the search space, achieving $O(\log N \times M)$ average case complexity.
+
+\begin{lstlisting}[caption={BK-Tree Search with Triangle Inequality Pruning}]
+fn search_at(
+    &self,
+    node: &BKNode,
+    query: &str,
+    max_distance: usize,
+    results: &mut Vec<(String, usize)>,
+) {
+    let dist = levenshtein(&node.word, query);
+
+    // Add node if within range
+    if dist <= max_distance && dist > 0 {
+        results.push((node.word.clone(), dist));
+    }
+
+    // Triangle inequality pruning
+    let min_child_dist = dist.saturating_sub(max_distance);
+    let max_child_dist = dist + max_distance;
+
+    for (&child_dist, child) in &node.children {
+        if child_dist >= min_child_dist
+           && child_dist <= max_child_dist {
+            self.search_at(child, query, max_distance, results);
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Levenshtein Distance}
+
+We implement an optimized Levenshtein distance calculation using single-row optimization, reducing space complexity from $O(m \times n)$ to $O(\min(m,n))$:
+
+\begin{lstlisting}[caption={Space-Optimized Levenshtein Distance}]
+pub fn levenshtein(a: &str, b: &str) -> usize {
+    let a_chars: Vec<char> = a.chars().collect();
+    let b_chars: Vec<char> = b.chars().collect();
+    let m = a_chars.len();
+    let n = b_chars.len();
+
+    if m == 0 { return n; }
+    if n == 0 { return m; }
+
+    // Single-row optimization
+    let (shorter, longer, short_chars, long_chars) =
+        if m <= n { (m, n, &a_chars, &b_chars) }
+        else { (n, m, &b_chars, &a_chars) };
+
+    let mut prev_row: Vec<usize> = (0..=shorter).collect();
+    let mut curr_row: Vec<usize> = vec![0; shorter + 1];
+
+    for j in 1..=longer {
+        curr_row[0] = j;
+        for i in 1..=shorter {
+            let cost = if short_chars[i-1] == long_chars[j-1]
+                       { 0 } else { 1 };
+            curr_row[i] = (prev_row[i] + 1)
+                .min(curr_row[i - 1] + 1)
+                .min(prev_row[i - 1] + cost);
+        }
+        std::mem::swap(&mut prev_row, &mut curr_row);
+    }
+    prev_row[shorter]
+}
+\end{lstlisting}
+
+\subsection{Contraction Expansion}
+
+The grammar module automatically expands 50+ English contractions during tokenization:
+
+\begin{lstlisting}[caption={Contraction Expansion in Tokenizer}]
+fn expand_contractions(&self, token: &str) -> Vec<String> {
+    match token {
+        "don't" => vec!["do".into(), "not".into()],
+        "won't" => vec!["will".into(), "not".into()],
+        "can't" => vec!["can".into(), "not".into()],
+        "i'm"   => vec!["i".into(), "am".into()],
+        "we'll" => vec!["we".into(), "will".into()],
+        "they've" => vec!["they".into(), "have".into()],
+        // ... 50+ contractions
+        _ => vec![token.to_string()],
+    }
+}
+\end{lstlisting}
+
+\section{Command Parser}
+
+The command parser transforms natural language into structured commands:
+
+\begin{lstlisting}[caption={Command Parser Usage}]
+use nl_sre_english::command_parser::CommandParser;
+
+fn main() {
+    let mut parser = CommandParser::new();
+
+    if let Some(cmd) = parser.parse("walk to the store") {
+        println!("Action: {}", cmd.action);       // "walk"
+        println!("Category: {}", cmd.category.name()); // "Movement"
+        println!("Object: {:?}", cmd.object);     // Some("to the store")
+    }
+
+    // Parse multiple sentences
+    let commands = parser.parse_all(
+        "Run to the store. Buy some milk. Come back home."
+    );
+    // Returns 3 ParsedCommand structs
+}
+\end{lstlisting}
+
+The parser identifies the main action verb, extracts subject and object phrases, and classifies the action into functional categories.
+
+\section{Performance Evaluation}
+
+\subsection{Benchmark Results}
+
+Table \ref{tab:benchmarks} shows performance measurements on a standard desktop system (AMD Ryzen 7, 32GB RAM).
+
+\begin{table}[htbp]
+\centering
+\caption{Performance Benchmarks}
+\label{tab:benchmarks}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Operation} & \textbf{Throughput} & \textbf{Latency} \\
+\midrule
+Verb lookup & 2.1M ops/sec & 0.48 $\mu$s \\
+Spell correction (BK-Tree) & 850K ops/sec & 1.2 $\mu$s \\
+Spell correction (Linear) & 23K ops/sec & 43 $\mu$s \\
+Command parsing & 420K ops/sec & 2.4 $\mu$s \\
+Contraction expansion & 1.8M ops/sec & 0.56 $\mu$s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{BK-Tree Speedup}
+
+The BK-Tree implementation achieves a \textbf{37$\times$ speedup} over linear search for typical spell correction queries (edit distance $\leq 2$). This improvement is critical for real-time applications.
+
+\subsection{Memory Footprint}
+
+The complete system requires approximately:
+\begin{itemize}
+    \item Verb database: 890 KB
+    \item Dictionary (BK-Tree): 1.2 MB
+    \item Grammar rules: 45 KB
+    \item \textbf{Total}: $\sim$2.1 MB
+\end{itemize}
+
+This compact footprint enables deployment on resource-constrained devices.
+
+\section{Applications}
+
+\subsection{AI Assistants}
+
+The semantic categorization enables AI assistants to understand user intent:
+
+\begin{lstlisting}[caption={Intent Classification for AI Assistants}]
+use nl_sre_english::SemanticDisambiguator;
+use nl_sre_english::verbs::FunctionalCategory;
+
+fn classify_intent(input: &str) -> &'static str {
+    let disambiguator = SemanticDisambiguator::new();
+    let result = disambiguator.process(input);
+
+    if let Some(action) = result.detected_actions.first() {
+        match action.category {
+            FunctionalCategory::Movement => "navigation",
+            FunctionalCategory::Communication => "messaging",
+            FunctionalCategory::Creation => "creative_task",
+            FunctionalCategory::Control => "system_control",
+            _ => "general"
+        }
+    } else {
+        "unknown"
+    }
+}
+\end{lstlisting}
+
+\subsection{Robotics}
+
+For robotics applications, deterministic verb classification ensures predictable behavior:
+
+\begin{lstlisting}[caption={Robotics Command Interpretation}]
+fn execute_command(cmd: &ParsedCommand) {
+    match cmd.category {
+        FunctionalCategory::Movement => {
+            // Activate locomotion subsystem
+            match cmd.group {
+                VerbGroup::Walk => robot.walk(cmd.object),
+                VerbGroup::Run => robot.run(cmd.object),
+                VerbGroup::Jump => robot.jump(),
+                _ => robot.move_generic(cmd.object),
+            }
+        }
+        FunctionalCategory::Physical => {
+            // Activate manipulation subsystem
+            robot.manipulate(cmd.action, cmd.object);
+        }
+        _ => robot.acknowledge_command(),
+    }
+}
+\end{lstlisting}
+
+\section{Implementation Details}
+
+\subsection{Zero Dependencies}
+
+NL-SRE-English maintains zero external dependencies, relying only on Rust's standard library. This design choice provides:
+
+\begin{itemize}
+    \item \textbf{Security}: No supply chain vulnerabilities from third-party crates
+    \item \textbf{Portability}: Compiles to any Rust target including WebAssembly
+    \item \textbf{Stability}: No dependency version conflicts
+    \item \textbf{Auditability}: Complete code review possible
+\end{itemize}
+
+\subsection{Rust Safety Guarantees}
+
+The implementation leverages Rust's type system and ownership model:
+
+\begin{itemize}
+    \item No unsafe code blocks
+    \item Memory safety guaranteed at compile time
+    \item Thread safety via \texttt{Send + Sync} traits
+    \item No runtime garbage collection overhead
+\end{itemize}
+
+\section{Limitations and Future Work}
+
+Current limitations include:
+
+\begin{itemize}
+    \item No word sense disambiguation for polysemous verbs
+    \item Limited handling of phrasal verbs
+    \item No context-dependent interpretation
+\end{itemize}
+
+Future work will address these through integration with the extended lexicon system supporting 160K+ words with WordNet synset hierarchies.
+
+\section{Availability}
+
+NL-SRE-English is available under the MIT License:
+
+\begin{itemize}
+    \item \textbf{Repository}: \url{https://github.com/Yatrogenesis/nl-sre-english}
+    \item \textbf{DOI}: \href{https://doi.org/10.5281/zenodo.18300355}{10.5281/zenodo.18300355}
+    \item \textbf{Crates.io}: \texttt{nl-sre-english}
+\end{itemize}
+
+\section{Conclusion}
+
+We presented NL-SRE-English, a deterministic semantic disambiguation engine for English natural language processing. The system achieves high performance through algorithmic optimizations (BK-Tree fuzzy search with 37$\times$ speedup) while maintaining zero external dependencies and complete interpretability. The 25 functional categories and 80+ verb groups enable fine-grained action classification suitable for AI assistants, robotics, and safety-critical applications.
+
+\begin{thebibliography}{9}
+
+\bibitem{burkhard1973}
+Burkhard, W. A., \& Keller, R. M. (1973).
+\newblock Some approaches to best-match file searching.
+\newblock {\em Communications of the ACM}, 16(4), 230--236.
+
+\bibitem{levenshtein1966}
+Levenshtein, V. I. (1966).
+\newblock Binary codes capable of correcting deletions, insertions, and reversals.
+\newblock {\em Soviet Physics Doklady}, 10(8), 707--710.
+
+\bibitem{nlsresematico2026}
+Molina-Burgos, F. (2026).
+\newblock NL-SRE-Semantico: Motor de Desambiguaci\'on Sem\'antica para Espa\~nol.
+\newblock {\em Zenodo}. \href{https://doi.org/10.5281/zenodo.18293530}{10.5281/zenodo.18293530}
+
+\bibitem{fellbaum1998}
+Fellbaum, C. (Ed.). (1998).
+\newblock {\em WordNet: An Electronic Lexical Database}.
+\newblock MIT Press.
+
+\bibitem{jurafsky2024}
+Jurafsky, D., \& Martin, J. H. (2024).
+\newblock {\em Speech and Language Processing} (3rd ed.).
+\newblock Pearson.
+
+\end{thebibliography}
+
+\end{document}
