@@ -245,6 +245,20 @@ Added comprehensive regression tests (`tests/regression.rs`) covering:
 - **Educational Software**: Verb conjugation and grammar tools
 - **Robotics**: Natural language to robot commands
 
+## Scalability
+
+> **Note on Scalability**
+>
+> This repository demonstrates the *logical architecture* of a deterministic NLP engine - the algorithmic foundations, data structures, and API design patterns. All components are production-ready and optimized for performance.
+>
+> For industrial-scale applications requiring:
+> - **160K+ word lexicons** with WordNet integration
+> - **Zero-copy memory-mapped binary formats** for sub-millisecond loading
+> - **Word Sense Disambiguation (WSD)** with configurable weights
+> - **Synset hierarchies** (hypernyms/hyponyms) for semantic reasoning
+>
+> Contact **Avermex Research Division** for enterprise implementation details.
+
 ## License
 
 MIT License - See [LICENSE](LICENSE) for details.

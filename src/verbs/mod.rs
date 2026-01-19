@@ -746,10 +746,10 @@ impl VerbEntry {
 
     /// Get regular -ing form
     fn regular_ing(base: &str) -> String {
-        if base.ends_with('e') && !base.ends_with("ee") {
+        if let Some(stem) = base.strip_suffix("ie") {
+            format!("{}ying", stem)
+        } else if base.ends_with('e') && !base.ends_with("ee") {
             format!("{}ing", &base[..base.len()-1])
-        } else if base.ends_with("ie") {
-            format!("{}ying", &base[..base.len()-2])
         } else if Self::should_double_final(base) {
             format!("{}{}ing", base, base.chars().last().unwrap())
         } else {

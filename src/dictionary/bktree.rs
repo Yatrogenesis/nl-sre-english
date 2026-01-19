@@ -104,6 +104,7 @@ impl BKTree {
         results
     }
 
+    #[allow(clippy::only_used_in_recursion)]
     fn search_at(
         &self,
         node: &BKNode,
@@ -194,7 +195,7 @@ pub fn levenshtein_bounded(a: &str, b: &str, threshold: usize) -> Option<usize> 
     let n = b_chars.len();
 
     // Early exit: length difference exceeds threshold
-    let len_diff = if m > n { m - n } else { n - m };
+    let len_diff = m.abs_diff(n);
     if len_diff > threshold {
         return None;
     }

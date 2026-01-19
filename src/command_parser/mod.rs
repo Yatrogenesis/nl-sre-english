@@ -109,7 +109,7 @@ impl CommandParser {
     /// Parse multiple commands from text
     pub fn parse_all(&mut self, text: &str) -> Vec<ParsedCommand> {
         // Split by common sentence delimiters
-        text.split(|c: char| c == '.' || c == '!' || c == '?' || c == ';')
+        text.split(['.', '!', '?', ';'])
             .filter(|s| !s.trim().is_empty())
             .filter_map(|s| self.parse(s.trim()))
             .collect()
