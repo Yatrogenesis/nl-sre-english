@@ -140,13 +140,24 @@ fn main() {
 ```
 Total verb entries: 1,514 (including multi-category)
 Unique verb base forms: 1,312
-Irregular verbs: ~133
-Regular verbs: ~1,381
+Irregular verbs: 133
+Regular verbs: 1,381
 Total forms indexed: ~5,300
 Functional categories: 25
 Verb groups: 80+
-Dictionary words: 4,970+ (COCA corpus)
+Dictionary words: 4,971 (COCA corpus)
 ```
+
+## Performance (Intel i7-12650H, 16 GB RAM)
+
+| Operation | Throughput | Latency |
+|-----------|------------|---------|
+| Verb lookup | 12.2M ops/sec | 0.08 µs |
+| Spell correction (BK-Tree) | 1.2K ops/sec | 804 µs |
+| Command parsing | 918K ops/sec | 1.1 µs |
+| Contraction expansion | 4.6M ops/sec | 0.22 µs |
+
+**BK-Tree speedup: 1.6x** over linear search for fuzzy matching.
 
 ### Multi-Category Verbs
 
@@ -220,7 +231,7 @@ let suggestions = dict.find_similar("helo", 2);
 // Returns: [("hello", 1), ("help", 2), ("held", 2), ...]
 ```
 
-**Benchmark improvement**: ~2.4x faster for typical spell correction queries (5,500 word dictionary).
+**Benchmark improvement**: ~1.6x faster for typical spell correction queries (4,971 word dictionary).
 
 ### Contraction Expansion
 
