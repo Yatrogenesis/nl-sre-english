@@ -1,0 +1,49 @@
+\documentclass[11pt]{letter}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\signature{Francisco Molina-Burgos\\
+Avermex Research Division\\
+M\'erida, Yucat\'an, M\'exico\\
+\href{mailto:fmolina@avermex.com}{fmolina@avermex.com}}
+
+\address{Avermex Research Division\\
+M\'erida, Yucat\'an, M\'exico}
+
+\date{January 22, 2026}
+
+\begin{document}
+
+\begin{letter}{Editor-in-Chief\\
+Computer Speech \& Language\\
+Elsevier}
+
+\opening{Dear Editor,}
+
+I am pleased to submit the manuscript entitled \textbf{``NL-SRE-English: A Deterministic Semantic Disambiguation Engine for English''} for consideration for publication in \textit{Computer Speech \& Language}.
+
+This work presents a pure Rust implementation of a deterministic semantic disambiguation engine specifically designed for English natural language processing. The key contributions include:
+
+\begin{itemize}
+    \item A comprehensive verb database with 1,514 entries supporting multi-category disambiguation across 25 functional categories
+    \item BK-Tree optimized fuzzy search achieving 1.6$\times$ speedup over linear search
+    \item Automatic contraction expansion for 50+ common English contractions
+    \item Zero external dependencies, enabling WebAssembly and embedded deployment
+    \item Sub-microsecond latency (0.08 $\mu$s for verb lookup) suitable for real-time applications
+\end{itemize}
+
+The deterministic nature of the engine provides complete interpretability and reproducibility, making it particularly suitable for safety-critical applications in robotics, industrial control systems, and AI assistants where transformer-based models may lack the required guarantees.
+
+The implementation is publicly available on crates.io (\texttt{nl-sre-english}) and GitHub under the MIT license, facilitating reproducibility and community adoption.
+
+This manuscript has not been published elsewhere and is not under consideration by any other journal. All authors have approved the manuscript and agree with its submission.
+
+I believe this work aligns well with the scope of \textit{Computer Speech \& Language} given its focus on practical NLP implementations with demonstrated performance characteristics.
+
+Thank you for considering this submission.
+
+\closing{Sincerely,}
+
+\end{letter}
+\end{document}
