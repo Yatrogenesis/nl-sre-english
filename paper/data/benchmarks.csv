@@ -1,0 +1,6 @@
+Operation,Throughput_ops_sec,Latency_us
+Verb lookup,12200000,0.08
+Spell correction (BK-Tree),1200,804
+Spell correction (Linear),800,1285
+Command parsing,918000,1.1
+Contraction expansion,4600000,0.22

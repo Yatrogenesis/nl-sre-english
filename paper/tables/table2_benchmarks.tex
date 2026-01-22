@@ -1,0 +1,16 @@
+\begin{table}[htbp]
+\centering
+\caption{Performance Benchmarks (Intel Core i7-12650H, 16 GB RAM)}
+\label{tab:benchmarks}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Operation} & \textbf{Throughput} & \textbf{Latency} \\
+\midrule
+Verb lookup & 12.2M ops/sec & 0.08 $\mu$s \\
+Spell correction (BK-Tree) & 1.2K ops/sec & 804 $\mu$s \\
+Spell correction (Linear) & 0.8K ops/sec & 1,285 $\mu$s \\
+Command parsing & 918K ops/sec & 1.1 $\mu$s \\
+Contraction expansion & 4.6M ops/sec & 0.22 $\mu$s \\
+\bottomrule
+\end{tabular}
+\end{table}
