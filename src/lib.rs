@@ -14,7 +14,7 @@
 //! ## Key Features
 //!
 //! - **Functional Verb Groups**: 25+ semantic categories for verbs
-//! - **Full Dictionary**: 100K+ words with frequency data
+//! - **Full Dictionary**: 5,500+ words from COCA corpus
 //! - **Zero Dependencies**: Pure Rust, no external crates
 //! - **Command Parser**: Natural language to structured commands
 //!
@@ -155,7 +155,7 @@ pub fn info() -> String {
          Probabilistic Semantic Disambiguation Engine\n\
          Author: Francisco Molina-Burgos, Avermex Research Division\n\
          Zero dependencies - Pure Rust\n\
-         Features: 25+ functional verb categories, 100K+ dictionary",
+         Features: 25+ functional verb categories, 5500+ dictionary",
         VERSION
     )
 }

@@ -47,7 +47,7 @@ fn main() {
     // Initialize components
     println!("Initializing components...");
     let start = Instant::now();
-    let verb_db = VerbDatabase::new();
+    let verb_db = VerbDatabase::default();  // Loads 1,514 built-in verbs
     let dictionary = EnglishDictionary::new();
     let grammar = EnglishGrammar::new();
     let mut command_parser = CommandParser::new();

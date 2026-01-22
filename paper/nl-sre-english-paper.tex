@@ -103,16 +103,16 @@
 
 % Highlights
 \begin{highlights}
-\item Deterministic verb classification into 25 functional categories with 1500+ verbs
+\item Deterministic verb classification into 25 functional categories with 1,312 verbs
 \item BK-Tree fuzzy search with logarithmic scaling for large dictionaries
 \item Zero external dependencies enabling WebAssembly and embedded deployment
-\item Sub-microsecond latency suitable for real-time robotics applications
+\item Sub-millisecond latency suitable for real-time applications
 \item Complete interpretability for safety-critical systems
 \end{highlights}
 
 % Abstract
 \begin{abstract}
-We present \textbf{NL-SRE-English}, a pure Rust implementation of a deterministic semantic disambiguation engine for English natural language processing (available on crates.io as \texttt{nl-sre-english}). The system features a comprehensive verb database with 1,500+ verbs organized into 25 functional categories and 80+ semantic groups, enabling fine-grained action classification. Key innovations include a BK-Tree optimized fuzzy search with $O(\log N)$ average complexity, automatic contraction expansion for 50+ common English contractions, and a natural language command parser. The implementation maintains zero external dependencies, making it suitable for embedded systems and WebAssembly deployment. We describe the architecture, algorithms, and demonstrate practical applications in AI assistants, chatbots, and robotics command interpretation.
+We present \textbf{NL-SRE-English}, a pure Rust implementation of a deterministic semantic disambiguation engine for English natural language processing (available on crates.io as \texttt{nl-sre-english}). The system features a comprehensive verb database with 1,312 verbs organized into 25 functional categories and 80+ semantic groups, enabling fine-grained action classification. Key innovations include a BK-Tree optimized fuzzy search with $O(\log N)$ average complexity, automatic contraction expansion for 50+ common English contractions, and a natural language command parser. The implementation maintains zero external dependencies, making it suitable for embedded systems and WebAssembly deployment. We describe the architecture, algorithms, and demonstrate practical applications in AI assistants, chatbots, and robotics command interpretation.
 \end{abstract}
 
 % Keywords
@@ -351,10 +351,10 @@ Table \ref{tab:benchmarks} shows performance measurements on a standard laptop s
 \toprule
 \textbf{Operation} & \textbf{Throughput} & \textbf{Latency} \\
 \midrule
-Verb lookup & 16.4M ops/sec & 0.06 $\mu$s \\
-Spell correction (BK-Tree) & 7K ops/sec & 135.5 $\mu$s \\
-Spell correction (Linear) & 4K ops/sec & 281 $\mu$s \\
-Command parsing & 1.1M ops/sec & 0.9 $\mu$s \\
+Verb lookup & 12.3M ops/sec & 0.08 $\mu$s \\
+Spell correction (BK-Tree) & 2K ops/sec & 516 $\mu$s \\
+Spell correction (Linear) & 1K ops/sec & 1,239 $\mu$s \\
+Command parsing & 1.3M ops/sec & 0.8 $\mu$s \\
 Contraction expansion & 4.9M ops/sec & 0.20 $\mu$s \\
 \bottomrule
 \end{tabular}
@@ -362,16 +362,16 @@ Contraction expansion & 4.9M ops/sec & 0.20 $\mu$s \\
 
 \subsection{BK-Tree Speedup}
 
-The BK-Tree implementation achieves a \textbf{2$\times$ speedup} over linear search for the current dictionary size (1,058 words). This speedup scales logarithmically with dictionary size; for larger dictionaries (10K+ words), speedups of 10--50$\times$ are typical as the triangle inequality pruning becomes more effective.
+The BK-Tree implementation achieves a \textbf{2.4$\times$ speedup} over linear search for the current dictionary size (5,500 words). This speedup scales logarithmically with dictionary size; for larger dictionaries (10K+ words), speedups of 5--15$\times$ are typical as the triangle inequality pruning becomes more effective.
 
 \subsection{Memory Footprint}
 
 The complete system requires approximately:
 \begin{itemize}
-    \item Verb database: $\sim$300 KB (1,500+ verbs with conjugations)
-    \item Dictionary (BK-Tree): $\sim$52 KB (1,058 words)
+    \item Verb database: $\sim$256 KB (1,312 verbs with conjugations)
+    \item Dictionary (BK-Tree): $\sim$268 KB (5,500 words from COCA corpus)
     \item Grammar rules: $\sim$45 KB (50+ contractions)
-    \item \textbf{Total}: $<$1 MB
+    \item \textbf{Total}: $\sim$1 MB
 \end{itemize}
 
 This compact footprint enables deployment on resource-constrained embedded devices and WebAssembly environments.

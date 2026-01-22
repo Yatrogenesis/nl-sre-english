@@ -1,9 +1,9 @@
 [package]
 name = "nl-sre-english"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 authors = ["Francisco Molina-Burgos <fmolina@avermex.com>"]
-description = "Probabilistic Semantic Disambiguation Engine for English - Zero dependencies, Pure Rust"
+description = "Deterministic Semantic Disambiguation Engine for English - 1500+ verbs, 5500+ words, Zero dependencies, Pure Rust"
 license = "MIT"
 repository = "https://github.com/Yatrogenesis/nl-sre-english"
 keywords = ["nlp", "semantic", "disambiguation", "english", "parser"]

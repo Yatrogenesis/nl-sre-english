@@ -1,6 +1,6 @@
 # NL-SRE-English
 
-**Probabilistic Semantic Disambiguation Engine for English**
+**Deterministic Semantic Disambiguation Engine for English**
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18300355.svg)](https://doi.org/10.5281/zenodo.18300355)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
@@ -11,7 +11,7 @@ A comprehensive English verb database with semantic disambiguation capabilities,
 
 ## Features
 
-- **1500+ English verbs** organized into 25 functional categories
+- **1,312 English verbs** organized into 25 functional categories
 - **80+ verb groups** for fine-grained classification
 - **Complete conjugation system** (regular + irregular verbs)
 - **Zero dependencies** - Pure Rust implementation
@@ -137,12 +137,13 @@ fn main() {
 ## Database Statistics
 
 ```
-Total verbs: 1500+
-Irregular verbs: 200+
-Regular verbs: 1300+
-Total forms indexed: 7500+
+Total verbs: 1,312
+Irregular verbs: ~200
+Regular verbs: ~1,100
+Total forms indexed: ~6,500
 Functional categories: 25
 Verb groups: 80+
+Dictionary words: 5,500+ (COCA corpus)
 ```
 
 ## Architecture
@@ -153,7 +154,7 @@ Verb groups: 80+
 ├─────────────────────────────────────────────────────┤
 │  ┌──────────────┐  ┌────────────┐  ┌────────────┐  │
 │  │ VerbDatabase │  │  Grammar   │  │ Dictionary │  │
-│  │  1500+ verbs │  │   Parser   │  │   5000+    │  │
+│  │  1312 verbs  │  │   Parser   │  │   5500+    │  │
 │  │  25 categories│  │   POS tag  │  │   words    │  │
 │  └──────────────┘  └────────────┘  └────────────┘  │
 ├─────────────────────────────────────────────────────┤
@@ -197,7 +198,7 @@ let suggestions = dict.find_similar("helo", 2);
 // Returns: [("hello", 1), ("help", 2), ("held", 2), ...]
 ```
 
-**Benchmark improvement**: ~37x faster for typical spell correction queries.
+**Benchmark improvement**: ~2.4x faster for typical spell correction queries (5,500 word dictionary).
 
 ### Contraction Expansion
 
