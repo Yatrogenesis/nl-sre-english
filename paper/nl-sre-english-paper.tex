@@ -104,7 +104,7 @@
 % Highlights
 \begin{highlights}
 \item Deterministic verb classification into 25 functional categories with 1500+ verbs
-\item BK-Tree fuzzy search achieves 37x speedup over linear search
+\item BK-Tree fuzzy search with logarithmic scaling for large dictionaries
 \item Zero external dependencies enabling WebAssembly and embedded deployment
 \item Sub-microsecond latency suitable for real-time robotics applications
 \item Complete interpretability for safety-critical systems
@@ -112,7 +112,7 @@
 
 % Abstract
 \begin{abstract}
-We present \textbf{NL-SRE-English}, a pure Rust implementation of a deterministic semantic disambiguation engine for English natural language processing (available on crates.io as \texttt{nl-sre-english}). The system features a comprehensive verb database with 1,500+ verbs organized into 25 functional categories and 80+ semantic groups, enabling fine-grained action classification. Key innovations include a BK-Tree optimized fuzzy search achieving 37$\times$ speedup over linear search, automatic contraction expansion for 50+ common English contractions, and a natural language command parser. The implementation maintains zero external dependencies, making it suitable for embedded systems and WebAssembly deployment. We describe the architecture, algorithms, and demonstrate practical applications in AI assistants, chatbots, and robotics command interpretation.
+We present \textbf{NL-SRE-English}, a pure Rust implementation of a deterministic semantic disambiguation engine for English natural language processing (available on crates.io as \texttt{nl-sre-english}). The system features a comprehensive verb database with 1,500+ verbs organized into 25 functional categories and 80+ semantic groups, enabling fine-grained action classification. Key innovations include a BK-Tree optimized fuzzy search with $O(\log N)$ average complexity, automatic contraction expansion for 50+ common English contractions, and a natural language command parser. The implementation maintains zero external dependencies, making it suitable for embedded systems and WebAssembly deployment. We describe the architecture, algorithms, and demonstrate practical applications in AI assistants, chatbots, and robotics command interpretation.
 \end{abstract}
 
 % Keywords
@@ -341,7 +341,7 @@ The parser identifies the main action verb, extracts subject and object phrases,
 
 \subsection{Benchmark Results}
 
-Table \ref{tab:benchmarks} shows performance measurements on a standard desktop system (AMD Ryzen 7, 32GB RAM).
+Table \ref{tab:benchmarks} shows performance measurements on a standard laptop system (Intel Core i7-12650H, 16 GB RAM).
 
 \begin{table}[htbp]
 \centering
@@ -351,30 +351,30 @@ Table \ref{tab:benchmarks} shows performance measurements on a standard desktop 
 \toprule
 \textbf{Operation} & \textbf{Throughput} & \textbf{Latency} \\
 \midrule
-Verb lookup & 2.1M ops/sec & 0.48 $\mu$s \\
-Spell correction (BK-Tree) & 850K ops/sec & 1.2 $\mu$s \\
-Spell correction (Linear) & 23K ops/sec & 43 $\mu$s \\
-Command parsing & 420K ops/sec & 2.4 $\mu$s \\
-Contraction expansion & 1.8M ops/sec & 0.56 $\mu$s \\
+Verb lookup & 16.4M ops/sec & 0.06 $\mu$s \\
+Spell correction (BK-Tree) & 7K ops/sec & 135.5 $\mu$s \\
+Spell correction (Linear) & 4K ops/sec & 281 $\mu$s \\
+Command parsing & 1.1M ops/sec & 0.9 $\mu$s \\
+Contraction expansion & 4.9M ops/sec & 0.20 $\mu$s \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{BK-Tree Speedup}
 
-The BK-Tree implementation achieves a \textbf{37$\times$ speedup} over linear search for typical spell correction queries (edit distance $\leq 2$). This improvement is critical for real-time applications.
+The BK-Tree implementation achieves a \textbf{2$\times$ speedup} over linear search for the current dictionary size (1,058 words). This speedup scales logarithmically with dictionary size; for larger dictionaries (10K+ words), speedups of 10--50$\times$ are typical as the triangle inequality pruning becomes more effective.
 
 \subsection{Memory Footprint}
 
 The complete system requires approximately:
 \begin{itemize}
-    \item Verb database: 890 KB
-    \item Dictionary (BK-Tree): 1.2 MB
-    \item Grammar rules: 45 KB
-    \item \textbf{Total}: $\sim$2.1 MB
+    \item Verb database: $\sim$300 KB (1,500+ verbs with conjugations)
+    \item Dictionary (BK-Tree): $\sim$52 KB (1,058 words)
+    \item Grammar rules: $\sim$45 KB (50+ contractions)
+    \item \textbf{Total}: $<$1 MB
 \end{itemize}
 
-This compact footprint enables deployment on resource-constrained devices.
+This compact footprint enables deployment on resource-constrained embedded devices and WebAssembly environments.
 
 \section{Applications}
 
@@ -482,7 +482,7 @@ cargo add nl-sre-english
 
 \section{Conclusion}
 
-We presented NL-SRE-English, a deterministic semantic disambiguation engine for English natural language processing. The system achieves high performance through algorithmic optimizations (BK-Tree fuzzy search with 37$\times$ speedup) while maintaining zero external dependencies and complete interpretability. The 25 functional categories and 80+ verb groups enable fine-grained action classification suitable for AI assistants, robotics, and safety-critical applications.
+We presented NL-SRE-English, a deterministic semantic disambiguation engine for English natural language processing. The system achieves high performance through algorithmic optimizations (BK-Tree fuzzy search with $O(\log N)$ complexity, 16M+ verb lookups per second) while maintaining zero external dependencies and complete interpretability. The 25 functional categories and 80+ verb groups enable fine-grained action classification suitable for AI assistants, robotics, and safety-critical applications.
 
 \section*{Declaration of generative AI and AI-assisted technologies in the writing process}
 
