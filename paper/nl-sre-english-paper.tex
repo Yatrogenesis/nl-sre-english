@@ -1,12 +1,9 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[preprint,12pt]{elsarticle}
 
 % Encoding and fonts
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-
-% Page layout
-\usepackage[margin=1in]{geometry}
 
 % Colors - for code highlighting
 \usepackage{xcolor}
@@ -82,30 +79,55 @@
 }
 
 % Bibliography
-\usepackage{natbib}
-\bibliographystyle{plainnat}
+\bibliographystyle{elsarticle-num}
 
-% Title info
-\title{\textbf{NL-SRE-English}: A Probabilistic Semantic Disambiguation Engine\\for Natural Language Processing}
-
-\author{Francisco Molina-Burgos\\
-\textit{Avermex Research Division}\\
-\textit{M\'erida, Yucat\'an, M\'exico}\\
-\href{mailto:fmolina@avermex.com}{fmolina@avermex.com}}
-
-\date{January 19, 2026}
+% Journal name
+\journal{Computer Speech \& Language}
 
 \begin{document}
 
-\maketitle
+\begin{frontmatter}
 
+% Title
+\title{\textbf{NL-SRE-English}: A Deterministic Semantic Disambiguation Engine\\for Natural Language Processing}
+
+% Authors
+\author[avermex]{Francisco Molina-Burgos\corref{cor1}}
+\ead{fmolina@avermex.com}
+\cortext[cor1]{Corresponding author}
+
+\affiliation[avermex]{organization={Avermex Research Division},
+            city={M\'erida, Yucat\'an},
+            country={M\'exico}}
+
+% ORCID
+\author[avermex]{Francisco Molina-Burgos}
+\fntext[orcid]{ORCID: \href{https://orcid.org/0009-0008-6093-8267}{0009-0008-6093-8267}}
+
+% Highlights
+\begin{highlights}
+\item Deterministic verb classification into 25 functional categories with 1500+ verbs
+\item BK-Tree fuzzy search achieves 37x speedup over linear search
+\item Zero external dependencies enabling WebAssembly and embedded deployment
+\item Sub-microsecond latency suitable for real-time robotics applications
+\item Complete interpretability for safety-critical systems
+\end{highlights}
+
+% Abstract
 \begin{abstract}
-We present \textbf{NL-SRE-English}, a pure Rust implementation of a probabilistic semantic disambiguation engine for English natural language processing. The system features a comprehensive verb database with 1,500+ verbs organized into 25 functional categories and 80+ semantic groups, enabling fine-grained action classification. Key innovations include a BK-Tree optimized fuzzy search achieving 37$\times$ speedup over linear search, automatic contraction expansion for 50+ common English contractions, and a natural language command parser. The implementation maintains zero external dependencies, making it suitable for embedded systems and WebAssembly deployment. We describe the architecture, algorithms, and demonstrate practical applications in AI assistants, chatbots, and robotics command interpretation.
+We present \textbf{NL-SRE-English}, a pure Rust implementation of a deterministic semantic disambiguation engine for English natural language processing (available on crates.io as \texttt{nl-sre-english}). The system features a comprehensive verb database with 1,500+ verbs organized into 25 functional categories and 80+ semantic groups, enabling fine-grained action classification. Key innovations include a BK-Tree optimized fuzzy search achieving 37$\times$ speedup over linear search, automatic contraction expansion for 50+ common English contractions, and a natural language command parser. The implementation maintains zero external dependencies, making it suitable for embedded systems and WebAssembly deployment. We describe the architecture, algorithms, and demonstrate practical applications in AI assistants, chatbots, and robotics command interpretation.
 \end{abstract}
+
+% Keywords
+\begin{keyword}
+semantic disambiguation \sep natural language processing \sep deterministic parsing \sep Rust implementation \sep verb classification \sep BK-Tree
+\end{keyword}
+
+\end{frontmatter}
 
 \section{Introduction}
 
-Natural Language Processing (NLP) systems require robust mechanisms for understanding user intent, particularly when dealing with action-oriented commands. While modern transformer-based models excel at many NLP tasks, they often lack the deterministic guarantees and interpretability required for safety-critical applications such as robotics, industrial control systems, and embedded devices.
+Natural Language Processing (NLP) systems require robust mechanisms for understanding user intent, particularly when dealing with action-oriented commands. While modern transformer-based models excel at many NLP tasks, they often lack the deterministic guarantees and interpretability required for safety-critical applications such as robotics, industrial control systems, and embedded devices \citep{marcus2020,bender2021}.
 
 \textbf{NL-SRE-English} addresses this gap by providing a deterministic, rule-based semantic disambiguation engine that:
 
@@ -118,6 +140,12 @@ Natural Language Processing (NLP) systems require robust mechanisms for understa
 \end{itemize}
 
 The system is part of the NL-SRE (Natural Language Semantic Rule Engine) family, with parallel implementations for Spanish \citep{nlsresematico2026} and planned support for additional languages.
+
+\section{Related Work}
+
+Semantic verb classification has a rich history in computational linguistics. VerbNet \citep{schuler2005} organizes verbs into classes based on Levin's classification \citep{levin1993}, while FrameNet \citep{baker1998} provides frame-semantic representations. PropBank \citep{palmer2005} offers predicate-argument structures for verbs in context.
+
+Our approach differs from these resources by focusing on deterministic, real-time classification suitable for embedded systems, rather than comprehensive linguistic annotation. We prioritize operational categories relevant to command interpretation over theoretical completeness.
 
 \section{System Architecture}
 
@@ -440,46 +468,79 @@ Current limitations include:
 
 Future work will address these through integration with the extended lexicon system supporting 160K+ words with WordNet synset hierarchies.
 
-\section{Availability}
+\section{Code Availability}
 
-NL-SRE-English is available under the MIT License:
+NL-SRE-English is released under the MIT License. The full source code is available on GitHub and the production-ready library can be installed via Rust's package manager:
 
 \begin{itemize}
     \item \textbf{Repository}: \url{https://github.com/Yatrogenesis/nl-sre-english}
+    \item \textbf{Crates.io}: \url{https://crates.io/crates/nl-sre-english}
     \item \textbf{DOI}: \href{https://doi.org/10.5281/zenodo.18300355}{10.5281/zenodo.18300355}
-    \item \textbf{Crates.io}: \texttt{nl-sre-english}
 \end{itemize}
+
+\noindent Installation via Cargo:
+\begin{verbatim}
+cargo add nl-sre-english
+\end{verbatim}
 
 \section{Conclusion}
 
 We presented NL-SRE-English, a deterministic semantic disambiguation engine for English natural language processing. The system achieves high performance through algorithmic optimizations (BK-Tree fuzzy search with 37$\times$ speedup) while maintaining zero external dependencies and complete interpretability. The 25 functional categories and 80+ verb groups enable fine-grained action classification suitable for AI assistants, robotics, and safety-critical applications.
 
-\begin{thebibliography}{9}
+\section*{Declaration of generative AI and AI-assisted technologies in the writing process}
+
+During the preparation of this work the author used Claude (Anthropic) for code review and documentation assistance. After using this tool, the author reviewed and edited the content as needed and takes full responsibility for the content of the publication.
+
+\section*{CRediT authorship contribution statement}
+
+\textbf{Francisco Molina-Burgos}: Conceptualization, Methodology, Software, Validation, Formal analysis, Investigation, Data curation, Writing -- original draft, Writing -- review \& editing, Visualization.
+
+\section*{Declaration of competing interest}
+
+The author declares no competing interests.
+
+\section*{Data availability}
+
+The complete source code and data are available at the GitHub repository (\url{https://github.com/Yatrogenesis/nl-sre-english}) and archived at Zenodo (DOI: \href{https://doi.org/10.5281/zenodo.18300355}{10.5281/zenodo.18300355}).
+
+\section*{Acknowledgments}
+
+This work was conducted independently at Avermex Research Division. No external funding was received.
+
+\begin{thebibliography}{99}
 
 \bibitem{burkhard1973}
-Burkhard, W. A., \& Keller, R. M. (1973).
-\newblock Some approaches to best-match file searching.
-\newblock {\em Communications of the ACM}, 16(4), 230--236.
+W.A. Burkhard, R.M. Keller, Some approaches to best-match file searching, Communications of the ACM 16 (4) (1973) 230--236.
 
 \bibitem{levenshtein1966}
-Levenshtein, V. I. (1966).
-\newblock Binary codes capable of correcting deletions, insertions, and reversals.
-\newblock {\em Soviet Physics Doklady}, 10(8), 707--710.
+V.I. Levenshtein, Binary codes capable of correcting deletions, insertions, and reversals, Soviet Physics Doklady 10 (8) (1966) 707--710.
 
 \bibitem{nlsresematico2026}
-Molina-Burgos, F. (2026).
-\newblock NL-SRE-Semantico: Motor de Desambiguaci\'on Sem\'antica para Espa\~nol.
-\newblock {\em Zenodo}. \href{https://doi.org/10.5281/zenodo.18293530}{10.5281/zenodo.18293530}
+F. Molina-Burgos, NL-SRE-Semantico: Motor de Desambiguaci\'on Sem\'antica para Espa\~nol, Zenodo (2026). \href{https://doi.org/10.5281/zenodo.18293530}{doi:10.5281/zenodo.18293530}
 
 \bibitem{fellbaum1998}
-Fellbaum, C. (Ed.). (1998).
-\newblock {\em WordNet: An Electronic Lexical Database}.
-\newblock MIT Press.
+C. Fellbaum (Ed.), WordNet: An Electronic Lexical Database, MIT Press, 1998.
 
 \bibitem{jurafsky2024}
-Jurafsky, D., \& Martin, J. H. (2024).
-\newblock {\em Speech and Language Processing} (3rd ed.).
-\newblock Pearson.
+D. Jurafsky, J.H. Martin, Speech and Language Processing, third ed., Pearson, 2024.
+
+\bibitem{marcus2020}
+G. Marcus, E. Davis, Rebooting AI: Building Artificial Intelligence We Can Trust, Pantheon Books, 2020.
+
+\bibitem{bender2021}
+E.M. Bender, T. Gebru, A. McMillan-Major, S. Shmitchell, On the dangers of stochastic parrots: Can language models be too big?, in: Proceedings of FAccT '21, 2021, pp. 610--623.
+
+\bibitem{schuler2005}
+K.K. Schuler, VerbNet: A Broad-Coverage, Comprehensive Verb Lexicon, Ph.D. thesis, University of Pennsylvania, 2005.
+
+\bibitem{levin1993}
+B. Levin, English Verb Classes and Alternations: A Preliminary Investigation, University of Chicago Press, 1993.
+
+\bibitem{baker1998}
+C.F. Baker, C.J. Fillmore, J.B. Lowe, The Berkeley FrameNet project, in: Proceedings of COLING-ACL '98, 1998, pp. 86--90.
+
+\bibitem{palmer2005}
+M. Palmer, D. Gildea, P. Kingsbury, The Proposition Bank: An annotated corpus of semantic roles, Computational Linguistics 31 (1) (2005) 71--106.
 
 \end{thebibliography}
 
