@@ -11,7 +11,8 @@ A comprehensive English verb database with semantic disambiguation capabilities,
 
 ## Features
 
-- **1,312 English verbs** organized into 25 functional categories
+- **1,514 English verb entries** organized into 25 functional categories
+- **Multi-category support** - verbs like "run" can belong to Movement AND Control
 - **80+ verb groups** for fine-grained classification
 - **Complete conjugation system** (regular + irregular verbs)
 - **Zero dependencies** - Pure Rust implementation
@@ -137,13 +138,34 @@ fn main() {
 ## Database Statistics
 
 ```
-Total verbs: 1,312
-Irregular verbs: ~200
-Regular verbs: ~1,100
-Total forms indexed: ~6,500
+Total verb entries: 1,514 (including multi-category)
+Unique verb base forms: 1,312
+Irregular verbs: ~133
+Regular verbs: ~1,381
+Total forms indexed: ~5,300
 Functional categories: 25
 Verb groups: 80+
-Dictionary words: 5,500+ (COCA corpus)
+Dictionary words: 4,970+ (COCA corpus)
+```
+
+### Multi-Category Verbs
+
+Some verbs belong to multiple semantic categories depending on context:
+
+```rust
+use nl_sre_english::VerbDatabase;
+
+let db = VerbDatabase::with_builtin();
+
+// "run" has multiple meanings
+let categories = db.get_all_categories("run");
+// Returns: [Movement, Control]
+// - "run to the store" -> Movement
+// - "run a company" -> Control
+
+// Get all entries for a verb
+let entries = db.lookup_all("run");
+// Returns Vec with 2 entries, each with different category
 ```
 
 ## Architecture

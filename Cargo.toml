@@ -1,6 +1,6 @@
 [package]
 name = "nl-sre-english"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 authors = ["Francisco Molina-Burgos <fmolina@avermex.com>"]
 description = "Deterministic Semantic Disambiguation Engine for English - 1500+ verbs, 5500+ words, Zero dependencies, Pure Rust"

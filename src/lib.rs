@@ -146,7 +146,7 @@ impl Default for Config {
 }
 
 /// Engine version
-pub const VERSION: &str = "0.1.2";
+pub const VERSION: &str = "0.1.4";
 
 /// Engine information
 pub fn info() -> String {

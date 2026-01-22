@@ -801,8 +801,8 @@ impl VerbEntry {
 /// The complete verb database
 #[derive(Debug)]
 pub struct VerbDatabase {
-    /// All verb entries by base form
-    verbs: HashMap<String, VerbEntry>,
+    /// All verb entries by base form (supports multiple categories per verb)
+    verbs: HashMap<String, Vec<VerbEntry>>,
     /// Index: all forms -> base form
     form_index: HashMap<String, String>,
     /// Index: category -> verb bases
@@ -867,28 +867,51 @@ impl VerbDatabase {
             .or_default()
             .push(base.clone());
 
-        // Store entry
-        self.verbs.insert(base, entry);
+        // Store entry (supports multiple categories per verb)
+        self.verbs.entry(base).or_default().push(entry);
     }
 
-    /// Look up a verb by any form
+    /// Look up a verb by any form (returns first/primary entry)
     pub fn lookup(&self, word: &str) -> Option<&VerbEntry> {
+        let w = word.to_lowercase();
+        self.form_index.get(&w)
+            .and_then(|base| self.verbs.get(base))
+            .and_then(|entries| entries.first())
+    }
+
+    /// Look up ALL entries for a verb (for verbs with multiple categories)
+    pub fn lookup_all(&self, word: &str) -> Option<&Vec<VerbEntry>> {
         let w = word.to_lowercase();
         self.form_index.get(&w)
             .and_then(|base| self.verbs.get(base))
     }
 
+    /// Get all categories for a verb
+    pub fn get_all_categories(&self, word: &str) -> Vec<FunctionalCategory> {
+        self.lookup_all(word)
+            .map(|entries| entries.iter().map(|e| e.category).collect())
+            .unwrap_or_default()
+    }
+
     /// Get all verbs in a category
     pub fn by_category(&self, category: FunctionalCategory) -> Vec<&VerbEntry> {
         self.category_index.get(&category)
-            .map(|bases| bases.iter().filter_map(|b| self.verbs.get(b)).collect())
+            .map(|bases| bases.iter()
+                .filter_map(|b| self.verbs.get(b))
+                .flat_map(|entries| entries.iter())
+                .filter(|e| e.category == category)
+                .collect())
             .unwrap_or_default()
     }
 
     /// Get all verbs in a group
     pub fn by_group(&self, group: VerbGroup) -> Vec<&VerbEntry> {
         self.group_index.get(&group)
-            .map(|bases| bases.iter().filter_map(|b| self.verbs.get(b)).collect())
+            .map(|bases| bases.iter()
+                .filter_map(|b| self.verbs.get(b))
+                .flat_map(|entries| entries.iter())
+                .filter(|e| e.group == group)
+                .collect())
             .unwrap_or_default()
     }
 
@@ -916,17 +939,21 @@ impl VerbDatabase {
     fn rebuild_indexes(&mut self) {
         let mut irregular = 0;
         let mut regular = 0;
+        let mut total_entries = 0;
 
-        for entry in self.verbs.values() {
-            if entry.irregular {
-                irregular += 1;
-            } else {
-                regular += 1;
+        for entries in self.verbs.values() {
+            for entry in entries {
+                total_entries += 1;
+                if entry.irregular {
+                    irregular += 1;
+                } else {
+                    regular += 1;
+                }
             }
         }
 
         self.stats = VerbStats {
-            total_verbs: self.verbs.len(),
+            total_verbs: total_entries,
             irregular_verbs: irregular,
             regular_verbs: regular,
             total_forms: self.form_index.len(),
@@ -935,13 +962,18 @@ impl VerbDatabase {
         };
     }
 
-    /// Get all verbs as iterator
+    /// Get all verbs as iterator (flattens all entries)
     pub fn all_verbs(&self) -> impl Iterator<Item = &VerbEntry> {
-        self.verbs.values()
+        self.verbs.values().flat_map(|entries| entries.iter())
     }
 
-    /// Get total count
+    /// Get total count of verb entries (including multi-category)
     pub fn len(&self) -> usize {
+        self.verbs.values().map(|v| v.len()).sum()
+    }
+
+    /// Get count of unique verb base forms
+    pub fn unique_verbs(&self) -> usize {
         self.verbs.len()
     }
 
@@ -1000,5 +1032,28 @@ mod tests {
         println!("Irregular: {}", db.stats.irregular_verbs);
         println!("Total forms indexed: {}", db.stats.total_forms);
         assert!(db.stats.total_verbs > 500);
+    }
+
+    #[test]
+    fn test_multi_category_verbs() {
+        let db = VerbDatabase::with_builtin();
+
+        // "run" should have multiple categories: Movement and Control
+        let run_categories = db.get_all_categories("run");
+        assert!(run_categories.len() >= 2, "run should have multiple categories");
+        assert!(run_categories.contains(&FunctionalCategory::Movement));
+        assert!(run_categories.contains(&FunctionalCategory::Control));
+
+        // lookup_all should return multiple entries
+        let run_entries = db.lookup_all("run");
+        assert!(run_entries.is_some());
+        assert!(run_entries.unwrap().len() >= 2);
+
+        // "accept" should have Communication and Transfer
+        let accept_categories = db.get_all_categories("accept");
+        assert!(accept_categories.len() >= 2, "accept should have multiple categories");
+
+        // unique_verbs should count base forms, not entries
+        assert!(db.unique_verbs() < db.len());
     }
 }
