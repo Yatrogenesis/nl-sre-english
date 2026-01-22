@@ -6,3 +6,6 @@ Cargo.lock
 .DS_Store
 .idea/
 .vscode/
+data/coca_temp.csv
+scripts/
+src/dictionary/common_words_original.txt
