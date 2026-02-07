@@ -375,10 +375,10 @@ impl QuantitativeTokenizer {
         }
 
         // Special case: lone decimal point is not a number
-        if chars[pos] == '.' {
-            if pos + 1 >= chars.len() || !chars[pos + 1].is_ascii_digit() {
-                return None;
-            }
+        if chars[pos] == '.'
+            && (pos + 1 >= chars.len() || !chars[pos + 1].is_ascii_digit())
+        {
+            return None;
         }
 
         let _num_start = pos;

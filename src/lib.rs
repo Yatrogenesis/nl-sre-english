@@ -1,6 +1,6 @@
 //! # NL-SRE-English
 //!
-//! Probabilistic Semantic Disambiguation Engine for English
+//! Deterministic Semantic Disambiguation Engine for English
 //!
 //! ## Architecture (4 Layers)
 //!
@@ -36,6 +36,7 @@ pub mod verbs;
 pub mod command_parser;
 pub mod domain;
 pub mod quantitative;
+pub mod transpiler;
 
 // Main re-exports
 pub use disambiguator::SemanticDisambiguator;
@@ -152,7 +153,7 @@ pub const VERSION: &str = "0.1.4";
 pub fn info() -> String {
     format!(
         "NL-SRE-English v{}\n\
-         Probabilistic Semantic Disambiguation Engine\n\
+         Deterministic Semantic Disambiguation Engine\n\
          Author: Francisco Molina-Burgos, Avermex Research Division\n\
          Zero dependencies - Pure Rust\n\
          Features: 25+ functional verb categories, 5500+ dictionary",
